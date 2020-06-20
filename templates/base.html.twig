@@ -8,11 +8,5 @@
     <body>
         {% block body %}{% endblock %}
         {% block javascripts %}{% endblock %}
-        <h1>{{ title }}</h1>
-        {% for vacancy in vacancies %}
-            <p>* {{ vacancy.title }}</p>
-        {% else %}
-            No vacancies have been found.
-        {% endfor %}
     </body>
 </html>

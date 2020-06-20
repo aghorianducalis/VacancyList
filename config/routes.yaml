@@ -1,11 +1,7 @@
 index:
     path: /
-    controller: App\Controller\IndexController::index
-
-xxx:
-    path: /xxx
-    controller: App\Controller\IndexController::xxx
     methods: GET|HEAD
+    controller: App\Controller\IndexController::index
 #    condition:  "context.getMethod() in ['GET', 'HEAD'] and request.headers.get('User-Agent') matches '/firefox/i'"
-    # expressions can also include config parameters:
-    # condition: "request.headers.get('User-Agent') matches '%app.allowed_browsers%'"
+#    condition: "request.headers.get('User-Agent') matches '%app.allowed_browsers%'"
+#    expressions can also include config parameters:
