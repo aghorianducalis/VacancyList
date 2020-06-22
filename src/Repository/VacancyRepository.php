@@ -19,6 +19,20 @@ class VacancyRepository extends ServiceEntityRepository
         parent::__construct($registry, Vacancy::class);
     }
 
+    public function findOneByIdJoinedToSite($siteId)
+    {
+        $entityManager = $this->getEntityManager();
+
+        $query = $entityManager->createQuery(
+            'SELECT v, s
+            FROM App\Entity\Vacancy v
+            INNER JOIN v.site s
+            WHERE v.id = :id'
+        )->setParameter('id', $siteId);
+
+        return $query->getOneOrNullResult();
+    }
+
     // /**
     //  * @return Vacancy[] Returns an array of Vacancy objects
     //  */

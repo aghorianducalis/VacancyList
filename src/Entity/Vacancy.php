@@ -18,6 +18,11 @@ class Vacancy
     private $id;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Site", inversedBy="vacancies")
+     */
+    private $site;
+
+    /**
      * @ORM\Column(type="string", length=255, nullable=true)
      */
     private $title;
@@ -35,6 +40,18 @@ class Vacancy
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getSite(): ?Site
+    {
+        return $this->site;
+    }
+
+    public function setSite(?Site $site): self
+    {
+        $this->site = $site;
+
+        return $this;
     }
 
     public function getTitle(): ?string

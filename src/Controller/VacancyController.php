@@ -2,7 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Site;
 use App\Entity\Vacancy;
+use App\Repository\VacancyRepository;
+use App\Service\Parser;
 use Doctrine\DBAL\DBALException;
 use Doctrine\Persistence\ObjectManager;
 use Exception;
@@ -14,12 +17,32 @@ class VacancyController extends AbstractController
 {
     /**
      * @Route("/vacancy", name="vacancy")
+     * @param Parser $parser
+     * @return Response
      */
     public function index()
     {
+        /** @var ObjectManager $entityManager */
+        $entityManager = $this->getDoctrine()->getManager();
+
         $title = 'Vacancy list';
+
         /** @var Vacancy[] $vacancy */
-        $vacancies = $this->getDoctrine()->getRepository(Vacancy::class)->findAll();
+        $vacancies = $entityManager->getRepository(Vacancy::class)->findAll();
+
+        /** @var Vacancy $vacancy */
+        $vacancy = $entityManager->getRepository(Vacancy::class)->find(1);
+
+        $sites = $entityManager->getRepository(Site::class)->findAll();
+
+        /** @var Site $site */
+        $site = $entityManager->getRepository(Site::class)->find(1);
+
+        $vacancy->setSite($site);
+
+        $entityManager->persist($vacancy);
+        $entityManager->persist($site);
+        $entityManager->flush();
 
         return $this->render('vacancy/index.html.twig', compact('title', 'vacancies'));
     }
@@ -70,11 +93,18 @@ class VacancyController extends AbstractController
      */
     public function show($id)
     {
-        $vacancy = $this->getDoctrine()->getRepository(Vacancy::class)->find($id);
+        /** @var Vacancy $vacancy */
+        $vacancy = $this->getDoctrine()->getRepository(Vacancy::class)->findOneByIdJoinedToSite($id);
 
         if (!$vacancy) {
             throw $this->createNotFoundException('No vacancy found for id ' . $id);
         }
+
+        /** @var Site $site */
+        $site = $vacancy->getSite();
+
+        /** @var \Doctrine\ORM\PersistentCollection $vacancies */
+        $vacancies = $site->getVacancies();
 
         return new Response($vacancy, Response::HTTP_OK);
     }
