@@ -2,9 +2,13 @@
 
 namespace App\Repository;
 
+
+use App\Entity\Site;
 use App\Entity\Vacancy;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
+use Doctrine\ORM\NonUniqueResultException;
 use Doctrine\Persistence\ManagerRegistry;
+use Doctrine\Persistence\ObjectManager;
 
 /**
  * @method Vacancy|null find($id, $lockMode = null, $lockVersion = null)
@@ -33,32 +37,78 @@ class VacancyRepository extends ServiceEntityRepository
         return $query->getOneOrNullResult();
     }
 
-    // /**
-    //  * @return Vacancy[] Returns an array of Vacancy objects
-    //  */
-    /*
-    public function findByExampleField($value)
+    /**
+     * @param $title
+     * @return Vacancy[] Returns an array of Vacancy objects
+     */
+    public function findByTitle($title)
     {
         return $this->createQueryBuilder('v')
-            ->andWhere('v.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('v.title = :val')
+            ->setParameter('val', $title)
             ->orderBy('v.id', 'ASC')
-            ->setMaxResults(10)
+//            ->setMaxResults(10)
             ->getQuery()
-            ->getResult()
-        ;
+            ->getResult();
     }
-    */
 
-    /*
-    public function findOneBySomeField($value): ?Vacancy
+    public function findOneByUrl($url): ?Vacancy
     {
-        return $this->createQueryBuilder('v')
-            ->andWhere('v.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
+        $vacancy = null;
+
+        try {
+            $vacancy = $this->createQueryBuilder('v')
+                ->andWhere('v.url = :val')
+                ->setParameter('val', $url)
+                ->getQuery()
+                ->getOneOrNullResult();
+        } catch (NonUniqueResultException $e) {
+            // todo handle duplicates
+        }
+
+        return $vacancy;
     }
-    */
+
+    public function createOrUpdateByUrl($url, Site $site = null): Vacancy
+    {
+        $vacancy = null;
+
+        try {
+            $vacancy = $this->createQueryBuilder('v')
+                ->andWhere('v.url = :val')
+                ->setParameter('val', $url)
+                ->getQuery()
+                ->getOneOrNullResult();
+        } catch (NonUniqueResultException $e) {
+            // todo remove duplicates
+        }
+
+        /** @var ObjectManager $entityManager */
+        $entityManager = $this->getEntityManager();
+
+        /** @var SiteRepository $siteRepository */
+        $siteRepository = $entityManager->getRepository(Site::class);
+
+        if (!$vacancy) {
+            $vacancy = new Vacancy();
+            $vacancy->setUrl($url);
+
+            $entityManager->persist($vacancy);
+            $entityManager->flush();
+        } else {
+            // todo update
+        }
+
+        if ($site) {
+            $vacancy->setSite($site);
+            $site->addVacancy($vacancy);
+
+            $entityManager->persist($vacancy);
+            $entityManager->persist($site);
+            $entityManager->flush();
+        }
+
+        return $vacancy;
+    }
+
 }

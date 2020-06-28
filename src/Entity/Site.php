@@ -76,6 +76,11 @@ class Site
         return $this;
     }
 
+    public function getItemListUrl(): string
+    {
+        return "https://jobs.dou.ua/sitemap-vacancies.xml"; // todo make dynamic
+    }
+
     public function addVacancy(Vacancy $vacancy): self
     {
         if (!$this->vacancies->contains($vacancy)) {

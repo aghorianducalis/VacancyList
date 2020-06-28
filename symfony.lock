@@ -144,6 +144,9 @@
             "bin/console"
         ]
     },
+    "symfony/css-selector": {
+        "version": "v5.1.2"
+    },
     "symfony/dependency-injection": {
         "version": "v5.1.0"
     },
@@ -151,6 +154,9 @@
         "version": "v2.1.2"
     },
     "symfony/doctrine-bridge": {
+        "version": "v5.1.2"
+    },
+    "symfony/dom-crawler": {
         "version": "v5.1.2"
     },
     "symfony/dotenv": {
