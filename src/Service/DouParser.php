@@ -30,8 +30,6 @@ class DouParser implements ParserInterface
 
     public function parseItem(string $url): array
     {
-        $result = [];
-
         $parseData = file_get_contents($url);
 
         $crawler = new Crawler($parseData);

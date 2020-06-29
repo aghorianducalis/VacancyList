@@ -4,7 +4,7 @@
     "require": {
         "php": "^7.2.5",
         "ext-ctype": "*",
-        "ext-dom": "*",,
+        "ext-dom": "*",
         "ext-iconv": "*",
         "ext-simplexml": "*",
         "sensio/framework-extra-bundle": "^5.5",

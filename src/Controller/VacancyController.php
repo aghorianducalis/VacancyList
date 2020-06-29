@@ -4,8 +4,7 @@ namespace App\Controller;
 
 use App\Entity\Site;
 use App\Entity\Vacancy;
-use App\Repository\VacancyRepository;
-use App\Service\DouParser;
+use App\Service\VacancyProvider;
 use Doctrine\Persistence\ObjectManager;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,16 +12,16 @@ use Symfony\Component\Routing\Annotation\Route;
 
 class VacancyController extends AbstractController
 {
-    /** @var DouParser $parser */
-    protected $parser;
+    /** @var VacancyProvider $vacancyProvider */
+    protected $vacancyProvider;
 
     /**
      * VacancyController constructor.
-     * @param DouParser $parser
+     * @param VacancyProvider $vacancyProvider
      */
-    public function __construct(DouParser $parser)
+    public function __construct(VacancyProvider $vacancyProvider)
     {
-        $this->parser = $parser;
+        $this->vacancyProvider = $vacancyProvider;
     }
 
     /**
@@ -33,22 +32,12 @@ class VacancyController extends AbstractController
     {
         /** @var ObjectManager $entityManager */
         $entityManager = $this->getDoctrine()->getManager();
-        /** @var VacancyRepository $repository */
-        $repository = $entityManager->getRepository(Vacancy::class);
+
         /** @var Site $site */
         $site = $entityManager->getRepository(Site::class)->find(1);
-        $url = $site->getItemListUrl();
-//        $vacancyLinks = $this->parser->parseItemList($url);
-        $vacancyLinks = [];
-
-        foreach ($vacancyLinks as $link) {
-            $repository->createOrUpdateByUrl($link, $site);
-        }
 
         $title = 'Vacancy list';
-
-        /** @var Vacancy[] $vacancy */
-        $vacancies = $repository->findAll();
+        $vacancies = $this->vacancyProvider->getVacancyListFromSite($site, true);
 
         return $this->render('vacancy/index.html.twig', compact('title', 'vacancies'));
     }
@@ -91,12 +80,7 @@ class VacancyController extends AbstractController
             throw $this->createNotFoundException('No vacancy found for id ' . $id);
         }
 
-        $url = $vacancy->getUrl();
-        $data = $this->parser->parseItem($url);
-
-        $vacancy->setTitle($data['title']);
-        $vacancy->setDescription($data['description']);
-        $entityManager->flush();
+        $vacancy = $this->vacancyProvider->getVacancyFromSite($vacancy, true);
 
         return $this->redirectToRoute('vacancy_show', [
             'id' => $vacancy->getId(),
