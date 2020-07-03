@@ -33,13 +33,15 @@ class VacancyController extends AbstractController
         /** @var ObjectManager $entityManager */
         $entityManager = $this->getDoctrine()->getManager();
 
-        /** @var Site $site */
-        $site = $entityManager->getRepository(Site::class)->find(1);
+        /** @var Site[] $sites */
+        $sites = $entityManager->getRepository(Site::class)->findAll();
 
         $title = 'Vacancy list';
-        $vacancies = $this->vacancyProvider->getVacancyListFromSite($site, true);
+//        $vacancies = $this->vacancyProvider->getVacancyListFromSite($site, true);
+        $vacancies = $entityManager->getRepository(Vacancy::class)->findAll();
+        $vacancies = array_slice($vacancies, 0, 20);
 
-        return $this->render('vacancy/index.html.twig', compact('title', 'vacancies'));
+        return $this->render('vacancy/index.html.twig', compact('title', 'vacancies', 'sites'));
     }
 
     /**
@@ -60,6 +62,9 @@ class VacancyController extends AbstractController
             throw $this->createNotFoundException('No vacancy found for id ' . $id);
         }
 
+        $title = 'Vacancy details';
+
+        return $this->render('vacancy/single.html.twig', compact('title', 'vacancy'));
         return new Response($vacancy, Response::HTTP_OK);
     }
 

@@ -3,19 +3,44 @@
 {% block title %}{% endblock %}
 
 {% block body %}
-<style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-</style>
 
-<div class="example-wrapper">
-    <h1>{{ title }}! ✅</h1>
-    {% for vacancy in vacancies %}
-        <a href="{{ path('vacancy_show', {id: vacancy.id}) }}" target="_blank">* {{ vacancy.title }}</a>
-        <a href="{{ path('vacancy_edit', {id: vacancy.id}) }}" target="_blank" class="btn">Update</a>
-        <br>
-    {% else %}
-        No vacancies have been found.
-    {% endfor %}
+<h1 class="text-center p-5">{{ title }}</h1>
+
+<div class="row">
+    <div class="col-3">
+        <form class="sticky-top" id="formGroup">
+            <div class="form-group" id="formGroupSites">
+                {% if sites is empty %}
+                {% else %}
+                    <div class="form-group-label">Sites</div>
+                    {% for site in sites %}
+                        <input class="form-check-input" type="checkbox" value="sites[]"
+                               id="check-input-site-{{ loop.index }}"
+                               {% if loop.index > 1 %}disabled{% endif %}
+                                {% if loop.index <= 1 %} checked{% endif %}>
+                        <label for="check-input-site-{{ loop.index }}">{{ site.name }}</label>
+                        <br>
+                    {% endfor %}
+                {% endif %}
+            </div>
+        </form>
+    </div>
+    <div class="col-9" id="vacancyList">
+        {% if vacancies is empty %}
+            No vacancies have been found.
+        {% else %}
+            {% for vacancy in vacancies %}
+                <div class="card">
+                    <img src="{{ asset('build/no-image.png') }}" class="card-img-top align-self-center" alt="">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ vacancy.title }}</h5>
+                        <p class="card-text">{{ vacancy.description|striptags|length > 100 ? vacancy.description|striptags|slice(0, 100) ~ '...' : vacancy.description|striptags  }}</p>
+                        <a class="btn btn-primary" href="{{ path('vacancy_show', {id: vacancy.id}) }}" target="_blank">Details</a>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 </div>
+
 {% endblock %}
