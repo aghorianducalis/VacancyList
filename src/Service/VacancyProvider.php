@@ -1,9 +1,8 @@
 <?php
 
-
 namespace App\Service;
 
-
+use App\Entity\Parser;
 use App\Entity\Site;
 use App\Entity\Vacancy;
 use App\Repository\VacancyRepository;
@@ -17,17 +16,9 @@ class VacancyProvider
     /** @var VacancyRepository $vacancyRepository */
     protected $vacancyRepository;
 
-    /** @var DouParser $parser */
-    protected $parser;
-
-    public function __construct(
-        EntityManagerInterface $entityManager,
-        VacancyRepository $vacancyRepository,
-        DouParser $parser
-    ) {
+    public function __construct(EntityManagerInterface $entityManager, VacancyRepository $vacancyRepository) {
         $this->entityManager = $entityManager;
         $this->vacancyRepository = $vacancyRepository;
-        $this->parser = $parser;
     }
 
     /**
@@ -38,8 +29,18 @@ class VacancyProvider
     public function getVacancyListFromSite(Site $site, bool $persist = false) : array
     {
         $vacancies = [];
-        $url = $site->getItemListUrl();
-        $vacancyLinks = $this->parser->parseItemList($url);
+
+        /** @var Parser $ormParser */
+        $ormParser = $site->getParser();
+
+        // todo make singleton, resolve via DI
+        $class = $ormParser->getClass();
+
+        /** @var ParserInterface $parser */
+        $parser = new $class();
+
+        $url = $parser->getVacancyListUrl();
+        $vacancyLinks = $parser->parseVacancyList($url);
 
         if ($persist !== false) {
             foreach ($vacancyLinks as $link) {
@@ -57,8 +58,14 @@ class VacancyProvider
      */
     public function getVacancyFromSite(Vacancy $vacancy, bool $persist = false) : Vacancy
     {
+        // todo make singleton, resolve via DI
+        $class = $vacancy->getSite()->getParser()->getClass();
+
+        /** @var ParserInterface $parser */
+        $parser = new $class();
+
         $url = $vacancy->getUrl();
-        $data = $this->parser->parseItem($url);
+        $data = $parser->parseVacancy($url);
 
         if ($persist !== false) {
             $vacancy->setTitle($data['title']);

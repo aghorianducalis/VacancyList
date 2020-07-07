@@ -4,10 +4,13 @@ namespace App\Controller;
 
 use App\Entity\Site;
 use App\Entity\Vacancy;
+use App\Message\ParseVacancyMessage;
 use App\Service\VacancyProvider;
 use Doctrine\Persistence\ObjectManager;
+use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Messenger\MessageBusInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class VacancyController extends AbstractController
@@ -28,8 +31,22 @@ class VacancyController extends AbstractController
      * @Route("/vacancy", name="vacancy")
      * @return Response
      */
-    public function index()
+    public function index(MessageBusInterface $bus, LoggerInterface $logger)
     {
+        $logger->error(1244);
+        die();
+        $redis = new \Redis();
+        $redis->connect('127.0.0.1', 6379);
+
+        $message = new ParseVacancyMessage('/some_url');
+
+//        echo "<pre>";
+//        var_dump($redis->exists('messages'));
+//        var_dump($redis->sMembers('messages'));
+        $bus->dispatch($message);
+//        var_dump($redis->xLen('messages'));
+//        var_dump($bus->dispatch($message));
+        die();
         /** @var ObjectManager $entityManager */
         $entityManager = $this->getDoctrine()->getManager();
 
