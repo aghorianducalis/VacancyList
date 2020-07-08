@@ -13,9 +13,9 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
-class ParseVacanciesCommand extends Command
+class ParseVacancyListCommand extends Command
 {
-    protected static $defaultName = 'app:parse-vacancies';
+    protected static $defaultName = 'app:parse-vacancy-list';
 
     /** @var EntityManagerInterface $entityManager */
     protected $entityManager;
@@ -42,21 +42,14 @@ class ParseVacanciesCommand extends Command
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $io = new SymfonyStyle($input, $output);
-        $siteIdentifier = $input->getArgument('site');
+        $siteSlug = $input->getArgument('site');
         $dryRun = (bool) $input->getOption('dry-run');
 
         /** @var SiteRepository $siteRepository */
         $siteRepository = $this->entityManager->getRepository(Site::class);
 
-        switch ($siteIdentifier) {
-            case 'dou':
-            default:
-                $siteId = 1;
-                break;
-        }
-
         /** @var Site $site */
-        $site = $siteRepository->find($siteId);
+        $site = $siteRepository->findOneBy(['slug' =>$siteSlug]);
 
         $io->note(sprintf('Site to parse: %s', $site->getName()));
 

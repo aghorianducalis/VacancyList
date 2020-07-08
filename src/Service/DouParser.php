@@ -1,15 +1,13 @@
 <?php
 
-
 namespace App\Service;
-
 
 use SimpleXMLElement;
 use Symfony\Component\DomCrawler\Crawler;
 
 class DouParser implements ParserInterface
 {
-    public function parseItemList(string $url): array
+    public function parseVacancyList(string $url): array
     {
         $result = [];
 
@@ -28,7 +26,7 @@ class DouParser implements ParserInterface
         return $result;
     }
 
-    public function parseItem(string $url): array
+    public function parseVacancy(string $url): array
     {
         $parseData = file_get_contents($url);
 
@@ -57,5 +55,10 @@ class DouParser implements ParserInterface
         $description = $descriptionNode->html();
 
         return compact('title', 'date', 'location', 'description');
+    }
+
+    public function getVacancyListUrl(): string
+    {
+        return "https://jobs.dou.ua/sitemap-vacancies.xml";
     }
 }

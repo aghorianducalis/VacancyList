@@ -6,7 +6,9 @@ namespace App\Service;
 
 interface ParserInterface
 {
-    public function parseItemList(string $url): array;
+    public function parseVacancyList(string $url): array;
 
-    public function parseItem(string $url): array;
+    public function parseVacancy(string $url): array;
+
+    public function getVacancyListUrl(): string;
 }

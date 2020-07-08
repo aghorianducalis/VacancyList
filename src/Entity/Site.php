@@ -20,9 +20,24 @@ class Site
     private $id;
 
     /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $name;
+
+    /**
      * @ORM\Column(type="string", length=255, unique=true)
      */
     private $domain;
+
+    /**
+     * @ORM\Column(type="string", length=20, unique=true)
+     */
+    private $slug;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Parser", inversedBy="sites")
+     */
+    private $parser;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Vacancy", mappedBy="site", orphanRemoval=true)
@@ -30,45 +45,33 @@ class Site
     private $vacancies;
 
     /**
-     * @ORM\Column(type="string", length=255)
+     * Site constructor.
      */
-    private $name;
-
     public function __construct()
     {
         $this->vacancies = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    /**
+     * @return int|null
+     */
+    public function getId(): int
     {
         return $this->id;
     }
 
     /**
-     * @return Collection|Vacancy[]
+     * @return string|null
      */
-    public function getVacancies(): Collection
-    {
-        return $this->vacancies;
-    }
-
-    public function getDomain(): ?string
-    {
-        return $this->domain;
-    }
-
-    public function setDomain(string $domain): self
-    {
-        $this->domain = $domain;
-
-        return $this;
-    }
-
-    public function getName(): ?string
+    public function getName(): string
     {
         return $this->name;
     }
 
+    /**
+     * @param string $name
+     * @return $this
+     */
     public function setName(string $name): self
     {
         $this->name = $name;
@@ -76,11 +79,75 @@ class Site
         return $this;
     }
 
-    public function getItemListUrl(): string
+    /**
+     * @return string|null
+     */
+    public function getDomain(): string
     {
-        return "https://jobs.dou.ua/sitemap-vacancies.xml"; // todo make dynamic
+        return $this->domain;
     }
 
+    /**
+     * @param string $domain
+     * @return $this
+     */
+    public function setDomain(string $domain): self
+    {
+        $this->domain = $domain;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSlug(): string
+    {
+        return $this->slug;
+    }
+
+    /**
+     * @param string $slug
+     * @return $this
+     */
+    public function setSlug(string $slug): self
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    /**
+     * @return Parser|null
+     */
+    public function getParser(): ?Parser
+    {
+        return $this->parser;
+    }
+
+    /**
+     * @param Parser $parser
+     * @return $this
+     */
+    public function setParser(Parser $parser): self
+    {
+        $this->parser = $parser;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection
+     */
+    public function getVacancies(): Collection
+    {
+        return $this->vacancies;
+    }
+
+    /**
+     * @param Vacancy $vacancy
+     * @return $this
+     */
     public function addVacancy(Vacancy $vacancy): self
     {
         if (!$this->vacancies->contains($vacancy)) {
@@ -91,6 +158,10 @@ class Site
         return $this;
     }
 
+    /**
+     * @param Vacancy $vacancy
+     * @return $this
+     */
     public function removeVacancy(Vacancy $vacancy): self
     {
         if ($this->vacancies->contains($vacancy)) {
@@ -105,6 +176,9 @@ class Site
         return $this;
     }
 
+    /**
+     * @return string
+     */
     public function __toString()
     {
         return __CLASS__ . ': ' . json_encode(get_object_vars($this));
