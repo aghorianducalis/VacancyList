@@ -1,0 +1,46 @@
+version: '3.7'
+
+services: 
+
+    mysql:
+        image: mysql:5.7
+        restart: on-failure
+        environment: 
+            MYSQL_ROOT_PASSWORD: secret
+            MYSQL_DATABASE: vacancy-list
+        ports: 
+            - 3306:3306
+        networks: 
+            - default_network
+    
+    nginx:
+        image: nginx
+        restart: on-failure
+        volumes: 
+            - './public/:/usr/src/app'
+            - './docker/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro'
+        ports:
+            - '80:80'
+        depends_on:
+            - php-fpm
+        networks: 
+            - default_network
+
+    php-fpm:
+        build:
+            context: .
+            dockerfile: docker/php-fpm/Dockerfile
+        volumes: 
+            - '.:/usr/src/app'
+        restart: on-failure
+        env_file:
+            - .env
+        user: 1000:1000
+        depends_on: 
+            - mysql
+        networks: 
+            - default_network
+
+networks: 
+    default_network:
+        driver: bridge
